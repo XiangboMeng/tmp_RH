@@ -1,9 +1,8 @@
-;* PRU1 Firmware for BeagleLogic (customized for PRUDAQ)
+;* PRU1 Firmware for BeagleLogic (customized for RadioHoud V3.0)
+;* AD9283 Single channel ADC 
+;* Copyright (C) 2020 Arash Ebadi Shahriavr <aebadish@nd.edu>
 ;*
-;* Copyright (C) 2014 Kumar Abhishek <abhishek@theembeddedkitchen.net>
-;*
-;* Mar '16: Modified by Kumar Abhishek for supporting the PRUDAQ board
-;* Adapted by Jason Holt to follow an external clock signal
+;* April '23: Modified by Arash Ebadi for supporting the RadioHoud board
 ;*
 ;* This modified firmware captures interleaved channels A & B into
 ;* /dev/beaglelogic
@@ -58,116 +57,187 @@ asm_main:
 	; Jump to the appropriate sample loop
 	; TODO
 
-	LDI    R31, PRU0_ARM_INTERRUPT_B + 16   ; Signal SYSEV_PRU0_TO_ARM_B to kernel driver
+	LDI    R31, 27 + 16                     ; Signal VRING1 to kernel driver
 	HALT
 
 	; Sample starts here
 	; Maintain global bytes transferred counter (8 byte bursts)
 	LDI    R29, 0
-	LDI    R20.w0, 0x03FF                ; For masking unused bits
-	LDI    R20.w2, 0x03FF
+	LDI    R20.w0, 0xFFFF                ; For masking unused bits
+	LDI    R20.w2, 0xFFFF
 
-sampleAD9201:
-	; Changed code for AD9201 sampling
+sampleAD9283:
+	; Changed code for AD9283 sampling
 	WBC    R31, 11                       ; Wait for falling edge
-
 	WBS    R31, 11                       ; Wait for rising edge
 	NOP                                  ; 3 cycles ~15ns delay before readout
 	NOP
-	NOP
-	MOV    R21.w0, R31.w0                ; Read I0
-	WBC    R31, 11                       ; falling edge
-	NOP
-$sampleAD9201$2:
-	NOP
-	NOP
-	MOV    R21.w2, R31.w0                ; Read Q0
+	MOV    R21.b0, R31.b0                ; Read I0
 
-	WBS    R31, 11
-	AND    R21, R21, R20                 ; Mask unused bits
-	NOP
-	NOP
-
-	MOV    R22.w0, R31.w0                ; I1
 	WBC    R31, 11
-	NOP
-	NOP
-	NOP
-	MOV    R22.w2, R31.w0                ; Q1
-
 	WBS    R31, 11
-	AND    R22, R22, R20
 	NOP
+	
+$sampleAD9283$2:
 	NOP
-	MOV    R23.w0, R31.w0                ; I2
-	WBC    R31, 11
-	NOP
-	NOP
-	NOP
-	MOV    R23.w2, R31.w0                ; Q2
 
+	MOV    R21.b1, R31.b0                ; I1
 	WBS    R31, 11
-	AND    R23, R23, R20
+	NOP                                  
 	NOP
-	NOP
-	MOV    R24.w0, R31.w0                ; I3
-	WBC    R31, 11
-	NOP
-	NOP
-	NOP
-	MOV    R24.w2, R31.w0                ; Q3
 
+	MOV    R21.b2, R31.b0                ; I2
 	WBS    R31, 11
-	AND    R24, R24, R20
 	NOP
 	NOP
-	MOV    R25.w0, R31.w0                ; I4
-	WBC    R31, 11
-	NOP
-	NOP
-	NOP
-	MOV    R25.w2, R31.w0                ; Q4
 
+	MOV    R21.b3, R31.b0                ; I3
 	WBS    R31, 11
-	AND    R25, R25, R20
 	NOP
 	NOP
-	MOV    R26.w0, R31.w0                ; I5
-	WBC    R31, 11
-	NOP
-	NOP
-	NOP
-	MOV    R26.w2, R31.w0                ; Q5
 
+	MOV    R22.b0, R31.b0                ; I4
 	WBS    R31, 11
-	AND    R26, R26, R20
 	NOP
 	NOP
-	MOV    R27.w0, R31.w0                ; I6
-	WBC    R31, 11
-	NOP
-	NOP
-	NOP
-	MOV    R27.w2, R31.w0                ; Q6
 
+	MOV    R22.b1, R31.b0                ; I5
 	WBS    R31, 11
-	AND    R27, R27, R20
 	NOP
 	NOP
-	MOV    R28.w0, R31.w0                ; I7
-	WBC    R31, 11
+
+	MOV    R22.b2, R31.b0                ; I6
+	WBS    R31, 11
 	NOP
 	NOP
+
+	MOV    R22.b3, R31.b0                ; I7
+	WBS    R31, 11
+	NOP
+	NOP
+
+	MOV    R23.b0, R31.b0                ; I8
+	WBS    R31, 11
+	NOP
+	NOP
+
+	MOV    R23.b1, R31.b0                ; I9
+	WBS    R31, 11
+	NOP
+	NOP
+
+	MOV    R23.b2, R31.b0                ; I10
+	WBS    R31, 11
+	NOP
+	NOP
+
+	MOV    R23.b3, R31.b0                ; I11
+	WBS    R31, 11
+	NOP
+	NOP
+
+	MOV    R24.b0, R31.b0                ; I12
+	WBS    R31, 11
+	NOP
+	NOP
+
+	MOV    R24.b1, R31.b0                ; I13
+	WBS    R31, 11
+	NOP
+	NOP
+
+	MOV    R24.b2, R31.b0                ; I14
+	WBS    R31, 11
+	NOP
+	NOP
+
+	MOV    R24.b3, R31.b0                ; I15
+	WBS    R31, 11
+	NOP
+	NOP
+
+	MOV    R25.b0, R31.b0                ; I16
+	WBS    R31, 11
+	NOP
+	NOP
+
+	MOV    R25.b1, R31.b0                ; I17
+	WBS    R31, 11
+	NOP
+	NOP
+
+	MOV    R25.b2, R31.b0                ; I18
+	WBS    R31, 11
+	NOP
+	NOP
+
+	MOV    R25.b3, R31.b0                ; I19
+	WBS    R31, 11
+	NOP
+	NOP
+
+	MOV    R26.b0, R31.b0                ; I20
+	WBS    R31, 11
+	NOP
+	NOP
+
+	MOV    R26.b1, R31.b0                ; I21
+	WBS    R31, 11
+	NOP
+	NOP
+
+	MOV    R26.b2, R31.b0                ; I22
+	WBS    R31, 11
+	NOP
+	NOP
+
+	MOV    R26.b3, R31.b0                ; I23
+	WBS    R31, 11
+	NOP
+	NOP
+
+	MOV    R27.b0, R31.b0                ; I24
+	WBS    R31, 11
+	NOP
+	NOP
+
+	MOV    R27.b1, R31.b0                ; I25
+	WBS    R31, 11
+	NOP
+	NOP
+
+	MOV    R27.b2, R31.b0                ; I26
+	WBS    R31, 11
+	NOP
+	NOP
+
+	MOV    R27.b3, R31.b0                ; I27
+	WBS    R31, 11
+	NOP
+	NOP
+	
+	MOV    R28.b0, R31.b0                ; I28
+	WBS    R31, 11
+	NOP
+	NOP
+
+	MOV    R28.b1, R31.b0                ; I29
+	WBS    R31, 11
+	NOP
+	NOP
+
+	MOV    R28.b2, R31.b0                ; I30
+	WBS    R31, 11
 	ADD    R29, R29, 32                  ; Maintain global byte counter
-	MOV    R28.w2, R31.w0                ; Q7
+	NOP
 
+	MOV    R28.b3, R31.b0                ; I31
 	WBS    R31, 11
-	AND    R28, R28, R20
-	XOUT   10, &R21, 36                     ; Move data across the broadside
-	LDI    R31, PRU1_PRU0_INTERRUPT + 16    ; Jab PRU0
-	MOV    R21.w0, R31.w0
-	WBC    R31, 11
-	JMP    $sampleAD9201$2
+	XOUT   10, &R21, 36                  ; Move data across the broadside
+	LDI    R31, PRU1_PRU0_INTERRUPT + 16 ; Jab PRU0
+	MOV    R21.b0, R31.b0                ; I0 (repeat)
+	WBS    R31, 11
+	JMP    $sampleAD9283$2
 
 ; End-of-firmware
 	HALT
